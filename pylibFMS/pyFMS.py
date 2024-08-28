@@ -27,10 +27,10 @@ def fms_init( pylibFMS: c.CDLL=None, localcomm: int=None, alt_input_nml_path: st
 @dataclasses.dataclass
 class FMS() :
 
-    pylibFMS_path : str = None
-    pylibFMS : c.CDLL = None
+    pylibFMS_path      : str = None
+    pylibFMS           : c.CDLL = None
     alt_input_nml_path : str = "input/input.nml"
-    localcomm : int = None    
+    localcomm          : int = None    
     
     def __post_init__(self) :
 
@@ -172,6 +172,39 @@ class FMS() :
         _set_global_domain2D.restype = None
 
         _set_global_domain2D(xbegin_p, xend_p, ybegin_p, yend_p, xsize_p, ysize_p, tile_count_p)
+
+
+    def define_nest_domain(self, num_nest, nest_level, tile_fine, tile_coarse,                               
+                           istart_coarse, icount_coarse, jstart_coarse, jcount_coarse, npes_nest_tile, 
+                           x_refine, y_refine, extra_halo=None, name=None) :
+
+        _define_nest_domain = self.pylibFMS.cfms_define_nest_domain
+
+        num_nest_p, num_nest_t = setscalar_Cint32(num_nest)
+        nest_level_p, nest_level_t = setarray_Cint32(nest_level)
+        tile_fine_p, tile_fine_t = setarray_Cint32(tile_fine)
+        tile_coarse_p, tile_coarse_t = setarray_Cint32(tile_coarse)
+        istart_coarse_p, istart_coarse_t = setarray_Cint32(istart_coarse)
+        icount_coarse_p, icount_coarse_t = setarray_Cint32(icount_coarse)
+        jstart_coarse_p, jstart_coarse_t = setarray_Cint32(jstart_coarse)
+        jcount_coarse_p, jcount_coarse_t = setarray_Cint32(jcount_coarse)
+        npes_nest_tile_p, npes_nest_tile_t = setarray_Cint32(npes_nest_tile)
+        x_refine_p, x_refine_t = setarray_Cint32(x_refine)
+        y_refine_p, y_refine_t = setarray_Cint32(y_refine)
+        extra_halo_p, extra_halo_t = setscalar_Cint32(extra_halo)
+        name_p, name_t = set_Cchar(name)
+
+        _define_nest_domain.argtype = [ num_nest_t, nest_level_t, tile_file_t, tile_coarse_t,
+                                        istart_coarse_t, icount_coarse_t, jstart_coarse_t, jcount_coarse_t,
+                                        npes_nest_tile_t, x_refine_t, y_refine_t, extra_halo_t, name_t ]
+        _define_nest_domain.restype = None
+
+        _define_nest_domain(num_nest_p, nest_level_p, tile_fine_p, tile_coarse_p,
+                            istart_coarse_p, icount_coarse_p, jstart_coarse_p, jcount_coarse_p,
+                            npes_nest_tile_p, x_refine_p, y_refine_p, extra_halo_p, name_p)
+                                        
+
+
         
     
     

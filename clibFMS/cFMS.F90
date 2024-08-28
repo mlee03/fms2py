@@ -1,9 +1,11 @@
 module cFMS_mod
 
   use FMS, only : fms_init, fms_mpp_domains_init, fms_string_utils_c2f_string
-  use FMS, only : FmsMppDomain2D
+  use FMS, only : FmsMppDomain2D, FmsMppDomainsNestDomain_type
   use FMS, only : fms_mpp_domains_define_domains, fms_mpp_domains_define_io_domain
   use FMS, only : fms_mpp_domains_set_compute_domain, fms_mpp_domains_set_data_domain, fms_mpp_domains_set_global_domain
+  use FMS, only : fms_mpp_domains_define_nest_domains
+  
   use iso_c_binding
 
   implicit none
@@ -13,17 +15,19 @@ module cFMS_mod
   public :: cFMS_get_domain
   public :: cFMS_define_domains2D, cFMS_define_io_domain2D
   public :: cFMS_set_compute_domain2D, cFMS_set_data_domain2D, cFMS_set_global_domain2D
-
+  public :: cFMS_define_nest_domain
+  
   character(100), parameter :: input_nml_path="./input.nml"
   
-  type(FmsMppDomain2D), public :: Domain2D
+  type(FmsMppDomain2D), public :: domain
+  type(FmsMppDomainsNestDomain_type), public :: nest_domain
   
 contains
 
   !> returns module Domain 
   function cFMS_get_domain()
     type(FmsMppDomain2D) :: cFMS_get_domain
-    cFMS_get_domain = Domain2D
+    cFMS_get_domain = domain
   end function cFMS_get_domain
 
 
@@ -78,8 +82,8 @@ contains
 
     if(present(name_ptr)) name = fms_string_utils_c2f_string(name_ptr)
     
-    call fms_mpp_domains_define_domains(global_indices, layout, Domain2D, pelist, xflags, yflags,    &
-         xhalo, yhalo, xextent, yextent, maskmap, name, symmetry,  memory_size,                      &
+    call fms_mpp_domains_define_domains(global_indices, layout, domain, pelist, xflags, yflags, &
+         xhalo, yhalo, xextent, yextent, maskmap, name, symmetry,  memory_size,                 &
          whalo, ehalo, shalo, nhalo, is_mosaic, tile_count, tile_id, complete, x_cyclic_offset, y_cyclic_offset)
 
   end subroutine cFMS_define_domains2D
@@ -90,7 +94,7 @@ contains
     implicit none
     integer, intent(in) :: io_layout(2)
 
-    call fms_mpp_domains_define_io_domain(Domain2D, io_layout)
+    call fms_mpp_domains_define_io_domain(domain, io_layout)
 
   end subroutine cFMS_define_io_domain2D
 
@@ -104,7 +108,7 @@ contains
     logical, intent(in), optional :: x_is_global, y_is_global
     integer, intent(in), optional :: tile_count
     
-    call fms_mpp_domains_set_compute_domain(Domain2D, xbegin, xend, ybegin, yend, xsize, ysize, &
+    call fms_mpp_domains_set_compute_domain(domain, xbegin, xend, ybegin, yend, xsize, ysize, &
                                             x_is_global, y_is_global, tile_count)
 
   end subroutine cFMS_set_compute_domain2D
@@ -119,7 +123,7 @@ contains
     logical, intent(in), optional :: x_is_global, y_is_global
     integer, intent(in), optional :: tile_count
 
-    call fms_mpp_domains_set_data_domain(Domain2D, xbegin, xend, ybegin, yend, xsize, ysize, &
+    call fms_mpp_domains_set_data_domain(domain, xbegin, xend, ybegin, yend, xsize, ysize, &
                                          x_is_global, y_is_global, tile_count)
 
   end subroutine cFMS_set_data_domain2D
@@ -133,9 +137,39 @@ contains
     integer, intent(in), optional :: tile_count
     integer                        :: tile
 
-    call fms_mpp_domains_set_global_domain(Domain2D, xbegin, xend, ybegin, yend, xsize, ysize, tile_count)
+    call fms_mpp_domains_set_global_domain(domain, xbegin, xend, ybegin, yend, xsize, ysize, tile_count)
 
   end subroutine cFMS_set_global_domain2D
   
-  
+
+  subroutine cFMS_define_nest_domain(num_nest, nest_level, tile_fine, tile_coarse,                               &
+                                     istart_coarse, icount_coarse, jstart_coarse, jcount_coarse, npes_nest_tile, &
+                                     x_refine, y_refine, extra_halo, name_ptr) bind(C)
+
+    implicit none
+
+    integer, intent(in) :: num_nest
+    integer, intent(in) :: nest_level(num_nest)
+    integer, intent(in) :: tile_fine(num_nest)
+    integer, intent(in) :: tile_coarse(num_nest)
+    integer, intent(in) :: istart_coarse(num_nest)
+    integer, intent(in) :: icount_coarse(num_nest)
+    integer, intent(in) :: jstart_coarse(num_nest)
+    integer, intent(in) :: jcount_coarse(num_nest)
+    integer, intent(in) :: npes_nest_tile(6+num_nest) !fix this
+    integer, intent(in) :: x_refine(num_nest)
+    integer, intent(in) :: y_refine(num_nest)
+    integer, intent(in), optional :: extra_halo
+    type(c_ptr), intent(in), optional :: name_ptr
+
+    character(100) :: name = "nest"    
+    
+    if(present(name_ptr)) name = fms_string_utils_c2f_string(name_ptr)
+
+    call fms_mpp_domains_define_nest_domains(nest_domain, domain, num_nest, nest_level, tile_fine, tile_coarse, &
+                                  istart_coarse, icount_coarse, jstart_coarse, jcount_coarse, npes_nest_tile,   &
+                                  x_refine, y_refine, extra_halo, name)
+    
+  end subroutine cFMS_define_nest_domain
+    
 end module cFMS_mod
