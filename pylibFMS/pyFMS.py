@@ -98,5 +98,81 @@ class FMS() :
                                memory_size_p, whalo_p, ehalo_p, shalo_p, nhalo_p, is_mosaic_p, tile_count_p,
                                tile_id_p, complete_p, x_cyclic_offset_p, y_cyclic_offset_p )
 
+
+    def define_io_domain2D(self, io_layout) :
+
+        _define_io_domain2D = self.pylibFMS.cfms_define_io_domain2d
+
+        io_layout_p, io_layout_t = setarray_Cint32(io_layout)
+
+        _define_io_domain2D.argtypes = [ io_layout_t ]
+        _define_io_domain2D.restype = None
+
+        _define_io_domain2D(io_layout_p)
+
+    def set_compute_domain2D(self, xbegin=None, xend=None, ybegin=None, yend=None,
+                             xsize=None, ysize=None, x_is_global=None, y_is_global=None, tile_count=None) :
+
+        _set_compute_domain2D = self.pylibFMS.cfms_set_compute_domain2d
         
+        xbegin_p, xbegin_t = setscalar_Cint32(xbegin)
+        xend_p,   xend_t   = setscalar_Cint32(xend)
+        ybegin_p, ybegin_t = setscalar_Cint32(ybegin)
+        yend_p,   yend_t   = setscalar_Cint32(yend)
+        xsize_p, xsize_t   = setscalar_Cint32(xsize)
+        ysize_p, ysize_t   = setscalar_Cint32(ysize)
+        x_is_global_p, x_is_global_t = setscalar_Cbool(x_is_global)
+        y_is_global_p, y_is_global_t = setscalar_Cbool(y_is_global)
+
+        _set_compute_domain2D.argtypes = [xbegin_t, xend_t, ybegin_t, yend_t,
+                                          xsize_t, ysize_t, x_is_global_t, y_is_global_t]
+        _set_compute_domain2D.restype = None
+
+        _set_compute_domain2D(xbegin_p, xend_p, ybegin_p, yend_p,
+                              xsize_p, xsize_p, ysize_p, x_is_global_p, y_is_global_p)
+
+
+    def set_data_domain2D(self, xbegin=None, xend=None, ybegin=None, yend=None,
+                          xsize=None, ysize=None, x_is_global=None, y_is_global=None, tile_count=None) :
+
+        _set_data_domain2D = self.pylibFMS.cfms_set_data_domain2d
+        
+        xbegin_p, xbegin_t = setscalar_Cint32(xbegin)
+        xend_p,   xend_t   = setscalar_Cint32(xend)
+        ybegin_p, ybegin_t = setscalar_Cint32(ybegin)
+        yend_p,   yend_t   = setscalar_Cint32(yend)
+        xsize_p,  xsize_t  = setscalar_Cint32(xsize)
+        ysize_p,  ysize_t  = setscalar_Cint32(ysize)
+        x_is_global_p, x_is_global_t = setscalar_Cbool(x_is_global)
+        y_is_global_p, y_is_global_t = setscalar_Cbool(y_is_global)
+
+        _set_data_domain2D.argtypes = [xbegin_t, xend_t, ybegin_t, yend_t,
+                                          xsize_t, ysize_t, x_is_global_t, y_is_global_t]
+        _set_data_domain2D.restype = None
+
+        _set_data_domain2D(xbegin_p, xend_p, ybegin_p, yend_p,
+                           xsize_p, xsize_p, ysize_p, x_is_global_p, y_is_global_p)
+
+
+    def set_global_domain2D(self, xbegin=None, xend=None, ybegin=None, yend=None,
+                            xsize=None, ysize=None, tile_count=None) :
+
+        _set_global_domain2D = self.pylibFMS.cfms_set_global_domain2d
+
+        xbegin_p, xbegin_t = setscalar_Cint32(xbegin)
+        xend_p,   xend_t   = setscalar_Cint32(xend)
+        ybegin_p, ybegin_t = setscalar_Cint32(ybegin)
+        yend_p,   yend_t   = setscalar_Cint32(yend)
+        xsize_p,  xsize_t  = setscalar_Cint32(xsize)
+        ysize_p,  ysize_t  = setscalar_Cint32(ysize)
+        tile_count_p, tile_count_t = setscalar_Cint32(tile_count)
+
+        _set_global_domain2D.argtype = [ xbegin_t, xend_t, ybegin_t, yend_t,
+                                         xsize_t, ysize_t, tile_count_t ]
+        _set_global_domain2D.restype = None
+
+        _set_global_domain2D(xbegin_p, xend_p, ybegin_p, yend_p, xsize_p, ysize_p, tile_count_p)
+        
+    
+    
     

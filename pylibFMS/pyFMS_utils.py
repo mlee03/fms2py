@@ -65,7 +65,7 @@ def setscalar_Cdouble(arg) :
 
 def setscalar_Cbool(arg) :
     if arg == None :
-        return arg, c.POINTER(c.c_double)
+        return arg, c.POINTER(c.c_bool)
     else :
         return c.byref(c.c_bool(arg)), c.POINTER(c.c_bool)
     
